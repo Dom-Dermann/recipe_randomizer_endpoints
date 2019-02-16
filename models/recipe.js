@@ -6,6 +6,20 @@ const recipeSchema = new mongoose.Schema({
         type: String, 
         required: true, 
         maxlength: 250
+    },
+    rating: {
+        type: Number, 
+        min: 1, 
+        max: 5,
+        required: true
+    },
+    timesCooked: {
+        type: Number,
+        default: 0
+    }, 
+    lastCooked: {
+        type: Date,
+        default: Date.now()
     }
 });
 
