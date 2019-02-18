@@ -34,6 +34,8 @@ route.get('/random', async(req, res) => {
 
     // print output of script
     subprocess.stdout.on('data', (data) => {
+        // return the data as json and display random choice in UI
+        console.log(data);
         return res.send(data);
     });
 
