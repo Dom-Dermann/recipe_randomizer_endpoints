@@ -1,4 +1,9 @@
 import sys, getopt, time
+import pymongo as mongo
+import json
+import pandas as pd
+
+uri = 'mongodb://admin:admin1!@ds026898.mlab.com:26898/recipe_randomizer'
 
 def main(argv):
     argument = ''
@@ -17,8 +22,20 @@ def main(argv):
         elif opt in ("-p", "--path"):
             argument = arg
 
-    # print output
-    print('You gave me: {}'.format(argument))
+    # test data output
+    get_data()
+
+
+def get_data():
+    client = mongo.MongoClient(uri)
+    db = client.get_database()
+    recipes = db['recipes']
+
+    cursor = recipes.find()
+
+    df = pd.DataFrame(list(cursor))
+    df.to_csv('./json_data.csv')
+    print(df)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -1,5 +1,5 @@
 {
     "db": {
-        "host": "mongodb://localhost:27017/recipe"
+        "host": "mongodb://admin:admin1!@ds026898.mlab.com:26898/recipe_randomizer"
     }
 }

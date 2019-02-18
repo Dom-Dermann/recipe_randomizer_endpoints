@@ -4,14 +4,6 @@ const {recipeSchema, Recipe} = require('../models/recipe');
 const path = require('path');
 const {spawn} = require('child_process');
 
-function runScript(){
-    return spawn('python', [
-      "-u", 
-      path.join(__dirname, 'hello.py'),
-      "--path", "path_to_csv.path",
-    ]);
-}
-
 route.get('/', async (req, res) => {
     Recipe.find()
         .then( (r) => {
@@ -30,6 +22,14 @@ route.post('/recipe', async (req, res) => {
 
 route.get('/random', async(req, res) => {
 
+    function runScript(){
+        return spawn('python', [
+          "-u", 
+          path.join(__dirname, 'hello.py'),
+          "--path", "path_to_csv.path",
+        ]);
+    };
+
     const subprocess = runScript()
 
     // print output of script
@@ -38,7 +38,7 @@ route.get('/random', async(req, res) => {
     });
 
     subprocess.stderr.on('data', (data) => {
-        return res.send(data);
+        console.log(data);
     });
     
     subprocess.stderr.on('close', () => {
