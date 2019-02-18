@@ -1,0 +1,4 @@
+pymongo
+json
+pandas
+numpy
