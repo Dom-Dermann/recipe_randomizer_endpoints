@@ -3,8 +3,9 @@ import pymongo as mongo
 import json
 import pandas as pd
 import numpy as np
+import sqlite3
 
-uri = 'mongodb://admin:admin1!@ds026898.mlab.com:26898/recipe_randomizer'
+connection = sqlite3.connect('../Database/recipes.db')
 max_cooked = 0
 
 def main(argv):
@@ -28,13 +29,17 @@ def main(argv):
     get_data()
 
 def get_data():
-    client = mongo.MongoClient(uri)
-    db = client.get_database()
-    recipes = db['recipes']
 
-    cursor = recipes.find()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM recipes")
 
-    df = pd.DataFrame(list(cursor))
+    results = cursor.fetchall()
+    print(results)
+
+    df = pd.read_sql_query("SELECT * FROM recipes", connection)
+
+    cursor.close()
+    connection.close()
 
     global max_cooked
     max_cooked_local = df.loc[df['timesCooked'].idxmax()]

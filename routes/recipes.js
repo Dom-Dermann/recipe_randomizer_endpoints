@@ -5,6 +5,7 @@ const path = require('path');
 const {spawn} = require('child_process');
 const sql = require('sqlite3').verbose();
 const dbPath = path.resolve(__dirname +'/../Database/recipes.db');
+const db = db_open();
 
 function db_open() {
     const db = new sql.Database(dbPath, (err) => {
@@ -16,7 +17,6 @@ function db_open() {
 
     return db;
 }
-
 
 function db_close() {
     db.close((err) => {
@@ -33,6 +33,7 @@ route.get('/', async (req, res) => {
 
     // query all recipes in DB
     const sql = 'SELECT name, rating FROM recipes';
+
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error(err.message);
@@ -65,9 +66,7 @@ route.post('/recipe', (req, res) => {
         changes = this.changes;
     });
 
-
     db_close();
-
     res.status(200).send(changes);
 });
 
