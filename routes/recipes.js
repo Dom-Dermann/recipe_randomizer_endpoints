@@ -32,16 +32,12 @@ route.get('/', async (req, res) => {
     const db = await db_open();
 
     // query all recipes in DB
-    const sql = 'SELECT name, rating FROM recipes';
+    const sql = 'SELECT name, rating, timesCooked, lastCooked FROM recipes';
 
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error(err.message);
         }
-        rows.forEach( (row) => {
-            console.log(row);
-        });
-
         return res.send(rows);
     });
 
@@ -50,14 +46,14 @@ route.get('/', async (req, res) => {
 
 route.post('/recipe', (req, res) => {
 
-    let changes = '';
+    let changes = 'No changes detected';
 
     const db = db_open();
 
-    db.run('CREATE TABLE IF NOT EXISTS recipes(name TEXT, rating INTEGER)');
+    db.run('CREATE TABLE IF NOT EXISTS recipes(name TEXT, rating INTEGER, timesCooked INTEGER, lastCooked TEXT)');
 
     // add recipe to table
-    db.run(`INSERT INTO recipes(name, rating) VALUES(?, ?)`, [req.body.name, req.body.rating], function(err) {
+    db.run(`INSERT INTO recipes(name, rating, timesCooked, lastCooked) VALUES(?, ?, ?, ?)`, [req.body.name, req.body.rating, req.body.timesCooked, req.body.lastCooked], function(err) {
         if (err) {
             return console.log(err.message);
         }
