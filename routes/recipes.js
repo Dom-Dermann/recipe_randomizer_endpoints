@@ -3,21 +3,72 @@ const route = express.Router();
 const {recipeSchema, Recipe} = require('../models/recipe');
 const path = require('path');
 const {spawn} = require('child_process');
+const sql = require('sqlite3').verbose();
+const dbPath = path.resolve(__dirname +'/../Database/recipes.db');
+
+function db_open() {
+    const db = new sql.Database(dbPath, (err) => {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log('Successfully connected to SQLite Database');
+    });
+
+    return db;
+}
+
+
+function db_close() {
+    db.close((err) => {
+        if(err) {
+            return console.error(err.message)
+        }
+        console.log('Closed Database connection.');
+    });
+}
 
 route.get('/', async (req, res) => {
-    Recipe.find()
-        .then( (r) => {
-            res.send(r)
-        })
-        .catch( (err) => res.send(err))
+
+    const db = await db_open();
+
+    // query all recipes in DB
+    const sql = 'SELECT name, rating FROM recipes';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+        }
+        rows.forEach( (row) => {
+            console.log(row);
+        });
+
+        return res.send(rows);
+    });
+
+    db_close();
 });
 
-route.post('/recipe', async (req, res) => {
-    let recipe = new Recipe(req.body);
-    recipe.lastCooked = Date.now();
-    await recipe.save()
-        .then( (r) => res.send(r))
-        .catch( (err) => res.status(501).send(err))
+route.post('/recipe', (req, res) => {
+
+    let changes = '';
+
+    const db = db_open();
+
+    db.run('CREATE TABLE IF NOT EXISTS recipes(name TEXT, rating INTEGER)');
+
+    // add recipe to table
+    db.run(`INSERT INTO recipes(name, rating) VALUES(?, ?)`, [req.body.name, req.body.rating], function(err) {
+        if (err) {
+            return console.log(err.message);
+        }
+        // display latest ID
+        console.log(`A row has been inserted with rowid ${this.lastID}`)
+        changes = this.changes;
+    });
+
+
+    db_close();
+
+    res.status(200).send(changes);
 });
 
 route.get('/random', async(req, res) => {
@@ -25,7 +76,7 @@ route.get('/random', async(req, res) => {
     function runScript(){
         return spawn('python', [
           "-u", 
-          path.join(__dirname, 'hello.py'),
+          path.join(__dirname, 'randomizer.py'),
           "--path", "path_to_csv.path",
         ]);
     };
